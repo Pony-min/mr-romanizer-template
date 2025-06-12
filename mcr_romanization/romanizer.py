@@ -1,8 +1,8 @@
 import pycrfsuite
 import re
 import pickle
-from tools.vectorizer_crf import create_sentence_features_crf
-from tools.keras_predict import Translit
+from mcr_romanization.tools.vectorizer_crf import create_sentence_features_crf
+from mcr_romanization.tools.keras_predict import Translit
 from keras.models import load_model
 
 class Romanizer():
@@ -19,15 +19,14 @@ class Romanizer():
         
         self.__romanizer = Translit(romanizer_model, input_token_index, target_token_index)
 
-    def Segment(self, text, return_array = False):
-        
+    def Segment(self, text, return_array=False):
         sentences = re.split(r'(?<=\.) ', text)
         no_space_sentences = []
         segmented_sentences = []
         delimiters = []
         
         for sentence in sentences:
-            no_space_sentence = ([c for c in ''.join(sentence.split())])
+            no_space_sentence = [c for c in ''.join(sentence.split())]
             no_space_sentences.append(no_space_sentence)
             delimiters.append(self.__segmenter.tag(create_sentence_features_crf(no_space_sentence)))
         
@@ -43,26 +42,22 @@ class Romanizer():
             return segmented_sentences
         
         return '. '.join(segmented_sentences).strip()
-            
-    def Romanize(self, text, return_array = False):
-        sentences = self.Segment(text, return_array = True)
+
+    def Romanize(self, text, return_array=False):
+        sentences = self.Segment(text, return_array=True)
         romanized_sentences = []
         for sentence in sentences:
             words = sentence.split()
             romanized_sentence = ''
             for word in words:
                 romanized_sentence += self.__romanizer.Romanize(word) + ' '
-            romanized_sentences.append(romanized_sentence.strip(' '))
+            romanized_sentences.append(romanized_sentence.strip())
         
         if return_array:
             return romanized_sentences
         
         return '. '.join(romanized_sentences).strip()
-        
-                
-    def romanize(text):
-        r = Romanizer()
-        return r.Romanize(text)
-          
-    
-    
+
+def romanize(text):
+    r = Romanizer()
+    return r.Romanize(text)
