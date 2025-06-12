@@ -1,2 +1,1 @@
 flask
-git+https://github.com/digitalprk/mcr_romanization.git
