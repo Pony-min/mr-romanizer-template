@@ -1,14 +1,9 @@
 import string
-
 from hanja import hangul
-try:
-    from jamo import decompose_character
-except:
-    from tools.jamo import decompose_character
-
+from mcr_romanization.tools.jamo import decompose_character
 def get_jamos(character):
     if hangul.is_hangul(character):
-        character_jamos = decompose_character(character, final_char = True)
+        character_jamos = decompose_character(character, final_char=True)
     elif character in string.punctuation:
         character_jamos = ['.', '.', '.']
     elif character.isdigit():
@@ -23,51 +18,65 @@ def character_features(sentence, index):
     character = sentence[index]
     character_jamos = get_jamos(character)
 
-    features = ['bias',
-                'char=' + character,
-                'jamo1=' + character_jamos[0],
-                'jamo2=' + character_jamos[1],
-                'jamo3=' + character_jamos[2]]
-    
+    features = [
+        'bias',
+        f'char={character}',
+        f'jamo1={character_jamos[0]}',
+        f'jamo2={character_jamos[1]}',
+        f'jamo3={character_jamos[2]}'
+    ]
+
     if index > 0:
-        character_before_jamos = get_jamos(sentence[index - 1])
-        features.extend(['before-char=' + sentence[index - 1],
-                         'before-bigram=' + sentence[index - 1] + character,
-                        'before-jamo1=' + character_before_jamos[0],
-                        'before-jamo2=' + character_before_jamos[1],
-                        'before-jamo3=' + character_before_jamos[2]])
+        before = sentence[index - 1]
+        before_jamos = get_jamos(before)
+        features += [
+            f'before-char={before}',
+            f'before-bigram={before}{character}',
+            f'before-jamo1={before_jamos[0]}',
+            f'before-jamo2={before_jamos[1]}',
+            f'before-jamo3={before_jamos[2]}'
+        ]
     else:
         features.append('BOS')
-    
+
     if index < len(sentence) - 1:
-        character_after_jamos = get_jamos(sentence[index + 1])
-        features.extend(['after-char=' + sentence[index + 1],
-                         'after-bigram=' + character + sentence[index + 1],
-                        'after-jamo1=' + character_after_jamos[0],
-                        'after-jamo2=' + character_after_jamos[1],
-                        'after-jamo3=' + character_after_jamos[2]])
+        after = sentence[index + 1]
+        after_jamos = get_jamos(after)
+        features += [
+            f'after-char={after}',
+            f'after-bigram={character}{after}',
+            f'after-jamo1={after_jamos[0]}',
+            f'after-jamo2={after_jamos[1]}',
+            f'after-jamo3={after_jamos[2]}'
+        ]
     else:
         features.append('EOS')
-    
+
     if index > 1:
-        character_before_jamos = get_jamos(sentence[index - 2])
-        features.extend(['before2-char=' + sentence[index - 2],
-                         'before2-bigram=' + sentence[index - 2] + sentence[index - 1],
-                         'before2-trigram=' + sentence[index - 2] + sentence[index - 1] + character,
-                        'before2-jamo1=' + character_before_jamos[0],
-                        'before2-jamo2=' + character_before_jamos[1],
-                        'before2-jamo3=' + character_before_jamos[2]])
+        before2 = sentence[index - 2]
+        before2_jamos = get_jamos(before2)
+        features += [
+            f'before2-char={before2}',
+            f'before2-bigram={before2}{sentence[index - 1]}',
+            f'before2-trigram={before2}{sentence[index - 1]}{character}',
+            f'before2-jamo1={before2_jamos[0]}',
+            f'before2-jamo2={before2_jamos[1]}',
+            f'before2-jamo3={before2_jamos[2]}'
+        ]
     else:
         features.append('BOS')
-    
+
     if index < len(sentence) - 2:
-        character_after_jamos = get_jamos(sentence[index + 2])
-        features.extend(['after2-char=' + sentence[index + 2],
-                         'after2-bigram=' + sentence[index + 1] + sentence[index + 2],
-                         'after2-trigram=' + character + sentence[index + 1] + sentence[index + 2],
-                        'after2-jamo1=' + character_after_jamos[0],
-                        'after2-jamo2=' + character_after_jamos[1],
-                        'after2-jamo3=' + character_after_jamos[2]])
+        after2 = sentence[index + 2]
+        after2_jamos = get_jamos(after2)
+        features += [
+            f'after2-char={after2}',
+            f'after2-bigram={sentence[index + 1]}{after2}',
+            f'after2-trigram={character}{sentence[index + 1]}{after2}',
+            f'after2-jamo1={after2_jamos[0]}',
+            f'after2-jamo2={after2_jamos[1]}',
+            f'after2-jamo3={after2_jamos[2]}'
+        ]
     else:
         features.append('EOS')
 
