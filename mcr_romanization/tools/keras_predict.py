@@ -7,7 +7,7 @@ import numpy as np
 try:
     from jamo import decompose_character
 except:
-    from tools.jamo import decompose_character
+    from mcr_romanization.tools.jamo import decompose_character
 
 latent_dim = 256
 num_encoder_tokens = 174
