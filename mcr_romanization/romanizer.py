@@ -60,6 +60,9 @@ class Romanizer():
         return '. '.join(romanized_sentences).strip()
         
                 
-            
+  def romanize(text):
+       r = Romanizer()
+       return r.Romanize(text)
+          
     
     
